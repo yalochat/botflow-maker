@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-const { List } = require('immutable');
-import './App.css';
+import React, { Component } from 'react'
+const { List } = require('immutable')
+import './App.css'
 
 const flow = List([
   {
@@ -76,6 +76,10 @@ const flow = List([
   }
 ])
 
+const addState = (state) => {
+  flow.push(state)
+}
+
 const findState = (name) => {
   return flow.filter((state) => {
     return state.name === name
@@ -84,27 +88,31 @@ const findState = (name) => {
   })
 }
 
-const data = flow.map(v => {
+const refreshRender = () => {
+  const data = flow.map(v => {
 
-  let chart = v.chart || {}
-  chart = Object.assign({}, chart, {
-    x: chart.x || 0,
-    y: chart.y || 0
-  })
-
-  const transitions = v.transitions.map((t) => {
-    const transitionChart = t.chart || {}
-    return Object.assign({}, t, {
-      chart: {
-        x1: transitionChart.x1 || chart.x || 0,
-        y1: transitionChart.y1 || chart.y || 0,
-        x2: chart.x2 || findState(t.to).chart.x || 0,
-        y2: chart.y2 || findState(t.to).chart.y || 0
-      }
+    let chart = v.chart || {}
+    chart = Object.assign({}, chart, {
+      x: chart.x || 0,
+      y: chart.y || 0
     })
+
+    const transitions = v.transitions.map((t) => {
+      const transitionChart = t.chart || {}
+      return Object.assign({}, t, {
+        chart: {
+          x1: transitionChart.x1 || chart.x || 0,
+          y1: transitionChart.y1 || chart.y || 0,
+          x2: chart.x2 || findState(t.to).chart.x || 0,
+          y2: chart.y2 || findState(t.to).chart.y || 0
+        }
+      })
+    })
+    return { name: v.name, transitions: transitions, chart: chart, detail: JSON.stringify(v) }
   })
-  return { name: v.name, transitions: transitions, chart: chart, detail: JSON.stringify(v) }
-})
+}
+
+refreshRender()
 
 class App extends Component {
   render() {
@@ -146,10 +154,10 @@ class Transition extends React.Component {
   render() {
     const getLine = (chart) => {
       return {
-        x1: chart.x1 + (chart.x2 >= (chart.x1 + 175)? 150: chart.x2 >= chart.x1 ? 75: 0),
-        y1: chart.y1 + (chart.y2 >= (chart.y1 + 75)? 50 : chart.y2 >= chart.y1 ? 25 : 0),
-        x2: chart.x2 + (chart.x1 >= (chart.x2 + 175)? 150: chart.x1 >= chart.x2 ? 75: 0),
-        y2: chart.y2 + (chart.y1 >= (chart.y2 + 75)? 50 : chart.y1 >= chart.y2 ? 25 : 0),
+        x1: chart.x1 + (chart.x2 >= (chart.x1 + 175) ? 150 : chart.x2 >= chart.x1 ? 75 : 0),
+        y1: chart.y1 + (chart.y2 >= (chart.y1 + 75) ? 50 : chart.y2 >= chart.y1 ? 25 : 0),
+        x2: chart.x2 + (chart.x1 >= (chart.x2 + 175) ? 150 : chart.x1 >= chart.x2 ? 75 : 0),
+        y2: chart.y2 + (chart.y1 >= (chart.y2 + 75) ? 50 : chart.y1 >= chart.y2 ? 25 : 0),
       }
     }
     return (
