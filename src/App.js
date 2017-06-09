@@ -5,6 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import {RaisedButton, TextField, Table, TableHeader, TableRow, TableHeaderColumn, TableRowColumn, TableBody } from 'material-ui';
 const EditTable = require('material-ui-table-edit')
 
+
 const { List } = require('immutable')
 import './App.css'
 
@@ -82,17 +83,24 @@ const flow = [
   }
 ]
 
-const addState = (state) => {
+const createState = (state) => {
   flow.push(state)
   refreshRender()
 }
 
 const findState = (name) => {
-  return flow.filter((state) => {
+
+  let filter = flow.filter((state) => {
     return state.name === name
-  }).reduce((a, b) => {
-    return a || b
   })
+  
+  if (filter.length > 0) {
+    return filter.reduce((a, b) => {
+      return a || b
+    })
+  } else {
+    return null
+  }
 }
 
 let data = [];
@@ -109,12 +117,15 @@ const refreshRender = () => {
 
     const transitions = v.transitions.map((t) => {
       const transitionChart = t.chart || {}
+      const state = findState(t.to)
+      const x2 = (!state) ? 0 : state.chart.x
+      const y2 = (!state) ? 0 : state.chart.y
       return Object.assign({}, t, {
         chart: {
           x1: transitionChart.x1 || chart.x || 0,
           y1: transitionChart.y1 || chart.y || 0,
-          x2: chart.x2 || findState(t.to).chart.x || 0,
-          y2: chart.y2 || findState(t.to).chart.y || 0
+          x2: chart.x2 || x2 || 0,
+          y2: chart.y2 || y2 || 0
         }
       })
     })
@@ -125,11 +136,14 @@ const refreshRender = () => {
 refreshRender()
 
 class App extends Component {
-  constructor () {
+  constructor() {
     super();
     this.state = {
       showModal: false,
-      currentNode: {}
+      currentNode: {},
+      createNewState: false,
+      x: 0,
+      y: 0
     };
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -139,20 +153,24 @@ class App extends Component {
     muiTheme: React.PropTypes.object
   }
 
+  _onMouseMove(e) {
+    this.setState({ x: e.screenX, y: e.screenY });
+  }
+
+  handleOpenModal(data) {
+    const state = JSON.parse(data.detail)
+    console.log(state)
+    this.setState({ showModal: true, currentNode: state });
+  }
+
   getChildContext() {
     return {
       muiTheme: getMuiTheme()
     }
   }
-  
-  handleOpenModal (data) {
-    const state = JSON.parse(data.detail)
-    console.log(state)
-    this.setState({showModal: true, currentNode: state});
-  }
 
-  handleCloseModal () {
-    this.setState({showModal: false});
+  handleCloseModal() {
+    this.setState({ showModal: false });
   }
 
   //TODO: No depender del index para modificar
@@ -191,8 +209,8 @@ class App extends Component {
       let state = this.state.currentNode.transitions[i];
       let element = (
         <TableRow>
-          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'when', i)} ></TextField></TableRowColumn>
-          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'to', i)} ></TextField></TableRowColumn>
+          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'when', i)} value={state.when}></TextField></TableRowColumn>
+          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'to', i)} value={state.to}></TextField></TableRowColumn>
         </TableRow>
       );
       transitions.push(element)
@@ -227,11 +245,13 @@ class App extends Component {
     ];
 
     return (
-      <div>
+      <div onMouseMove={this._onMouseMove.bind(this)}>
+        <h1>Mouse coordinates: {this.state.x} {this.state.y}</h1>
+        <Menu createNew={this.state.createNewState}></Menu>
         <svg height="2100" width="5000">
           <g>{
             data.map((step, k) => (
-              <Node key={k} step={step} open={this.handleOpenModal}/>
+              <Node key={k} step={step} open={this.handleOpenModal} />
             ))}
           </g>
           <g>{
@@ -246,7 +266,7 @@ class App extends Component {
             ))}
           </g>
         </svg>
-        <Dialog title="Editar evento" modal={true} open={this.state.showModal}  actions={actions}>
+        <Dialog title="Editar evento" modal={true} open={this.state.showModal} actions={actions}>
           <form>
               <label>Nombre</label><br/>
               <TextField
@@ -299,6 +319,20 @@ class Transition extends React.Component {
         <text x={(this.props.t.chart.x1 + this.props.t.chart.x2) / 2} y={((getLine(this.props.t.chart).y1 + getLine(this.props.t.chart).y2) / 2)} fontFamily="Verdana" fontSize="10" fill="black">{this.props.t.when}</text>
         <circle cx={getLine(this.props.t.chart).x2} cy={getLine(this.props.t.chart).y2} r="3" />
       </g>
+    )
+  }
+}
+
+class Menu extends React.Component {
+  createNew
+  render() {
+    return (
+      <div>
+        <button>Nuevo estado</button>
+        <Dialog title="Nuevo estado" modal={true} open={this.props.createNewState}>
+          <button onClick={this.handleCloseModal}>Cerrar</button>
+        </Dialog>
+      </div>
     )
   }
 }
