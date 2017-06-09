@@ -89,8 +89,10 @@ const findState = (name) => {
   })
 }
 
+let data = [];
+
 const refreshRender = () => {
-  const data = flow.map(v => {
+  data = flow.map(v => {
 
     let chart = v.chart || {}
     chart = Object.assign({}, chart, {
