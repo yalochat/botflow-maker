@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Modal from 'react-modal'
 const { List } = require('immutable');
 import './App.css';
 
@@ -107,34 +108,57 @@ const data = flow.map(v => {
 })
 
 class App extends Component {
+  constructor () {
+    super();
+    this.state = {
+      showModal: false
+    };
+    this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+  }
+
+  handleOpenModal () {
+    this.setState({showModal: true});
+  }
+  
+  handleCloseModal () {
+    this.setState({showModal: false});
+  }
+
   render() {
     return (
-      <svg height="2100" width="5000">
-        <g>{
-          data.map((step, k) => (
-            <Node key={k} step={step} />
-          ))}
-        </g>
-        <g>{
-          data.map((step, k) => (
-            <g key={k}>
-              {
-                step.transitions.map((t, k1) => (
-                  <Transition key={k1} t={t} />
-                ))
-              }
-            </g>
-          ))}
-        </g>
-      </svg>
+      <div>
+        <svg height="2100" width="5000">
+          <g>{
+            data.map((step, k) => (
+              <Node key={k} step={step} open={this.handleOpenModal}/>
+            ))}
+          </g>
+          <g>{
+            data.map((step, k) => (
+              <g key={k}>
+                {
+                  step.transitions.map((t, k1) => (
+                    <Transition key={k1} t={t} />
+                  ))
+                }
+              </g>
+            ))}
+          </g>
+        </svg>
+        <Modal  isOpen={this.state.showModal} contentLabel="Minimal Modal Example" >
+          <button onClick={this.handleCloseModal}>Close Modal</button>
+        </Modal>
+      </div>
     );
   }
 }
 
+
 class Node extends React.Component {
   render() {
     return (
-      <g>
+      <g onClick={this.props.open}>
         <rect x={this.props.step.chart.x} y={this.props.step.chart.y} rx="5" ry="5" width="150" height="50" style={{ fill: 'blue', stroke: 'pink', strokeWidth: 5, opacity: 0.5 }} className="node" />
         <text x={this.props.step.chart.x + 10} y={this.props.step.chart.y + 20} fontFamily="Verdana" fontSize="15" fill="white">{this.props.step.name}</text>
       </g>
