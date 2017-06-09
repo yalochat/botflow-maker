@@ -237,7 +237,20 @@ class App extends Component {
 
   onClick() {
     if(this.state.waitForCreate){
-      this.setState({createNewState: true})
+      flow.push({
+        name: 'new-state',
+        chart: {
+          x: this.state.x,
+          y: this.state.y - 170
+        },
+        transitions: []
+      })
+      refreshRender()
+      this.setState({
+      waitForCreate: false,
+      mouseClass: 'default'
+    })
+      //this.setState({createNewState: true})
     }
   }
 
