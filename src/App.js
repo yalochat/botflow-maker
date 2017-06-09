@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import Dialog from 'material-ui/Dialog';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import {RaisedButton, TextField} from 'material-ui';
+
 const { List } = require('immutable')
 import './App.css'
 
@@ -135,21 +137,39 @@ class App extends Component {
     muiTheme: React.PropTypes.object
   }
 
-  handleOpenModal () {
-    this.setState({showModal: true});
-  }
-
   getChildContext() {
     return {
       muiTheme: getMuiTheme()
     }
   }
   
+  handleOpenModal (data) {
+    const state = JSON.parse(data.detail)
+    console.log(state)
+    this.setState({showModal: true, currentNode: state});
+  }
+
   handleCloseModal () {
     this.setState({showModal: false});
   }
 
+  renderTransitions() {
+    
+  }
+
   render() {
+    const actions = [
+      <RaisedButton
+        label="Modificar"
+        primary={true}
+        onClick={this.handleCloseModal}
+      />,
+      <RaisedButton
+        label="Cerrar"
+        onClick={this.handleCloseModal}
+      />
+    ];
+
     return (
       <div>
         <svg height="2100" width="5000">
@@ -170,8 +190,25 @@ class App extends Component {
             ))}
           </g>
         </svg>
-        <Dialog title="Dialog With Actions" modal={true} open={this.state.showModal}>
-          <button onClick={this.handleCloseModal}>Cerrar</button>
+        <Dialog title="Editar evento" modal={true} open={this.state.showModal}  actions={actions}>
+          <form>
+              <label>Nombre</label><br/>
+              <TextField
+                hintText="Nombre del estado"
+                value={this.state.currentNode.name}
+              />
+              <br />
+              <label>Template</label><br/>
+              <TextField
+                hintText="Template"
+                value={this.state.currentNode.template}
+              />
+              <br />
+              <br />
+              <label>Transiciones</label><br/>
+              <hr/>
+
+          </form>
         </Dialog>
       </div>
     );
@@ -182,7 +219,7 @@ class App extends Component {
 class Node extends React.Component {
   render() {
     return (
-      <g onClick={this.props.open}>
+      <g onClick={this.props.open.bind(this, this.props.step)}>
         <rect x={this.props.step.chart.x} y={this.props.step.chart.y} rx="5" ry="5" width="150" height="50" style={{ fill: 'blue', stroke: 'pink', strokeWidth: 5, opacity: 0.5 }} className="node" />
         <text x={this.props.step.chart.x + 10} y={this.props.step.chart.y + 20} fontFamily="Verdana" fontSize="15" fill="white">{this.props.step.name}</text>
       </g>
