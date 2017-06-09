@@ -2,12 +2,13 @@ import React, { Component } from 'react'
 import Dialog from 'material-ui/Dialog';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import {RaisedButton, TextField} from 'material-ui';
+import {RaisedButton, TextField, Table, TableHeader, TableRow, TableHeaderColumn, TableRowColumn, TableBody } from 'material-ui';
+const EditTable = require('material-ui-table-edit')
 
 const { List } = require('immutable')
 import './App.css'
 
-const flow = List([
+const flow = [
   {
     name: 'init',
     template: 'template1',
@@ -79,7 +80,7 @@ const flow = List([
     transitions: [
     ]
   }
-])
+]
 
 const addState = (state) => {
   flow.push(state)
@@ -97,6 +98,7 @@ const findState = (name) => {
 let data = [];
 
 const refreshRender = () => {
+  console.log(flow)
   data = flow.map(v => {
 
     let chart = v.chart || {}
@@ -153,8 +155,62 @@ class App extends Component {
     this.setState({showModal: false});
   }
 
+  //TODO: No depender del index para modificar
+  updateTransition(type, index, object, value) {
+    console.log(object, type, index, value)
+    if (this.state.currentNode.transitions) {
+      let state = this.state;
+      if (type === 'when') {
+        state.currentNode.transitions[index].when =  value
+      } else {
+        state.currentNode.transitions[index].to =  value
+      }
+      this.setState(state)
+    }
+    this.updateState()
+  }
+
+  updateState() {
+    let stateName = this.state.currentNode.name
+    let i = flow.indexOf(flow.find(function(item) {
+      return item.name == stateName
+    }))
+    console.log(i, this.state.currentNode)
+    flow[i] = this.state.currentNode
+    console.log(i, this.state.currentNode)
+    refreshRender()
+  }
+
   renderTransitions() {
+    if (!this.state.currentNode.transitions) {
+      return []
+    }
+
+    let transitions = []
+    for (let i = 0; i < this.state.currentNode.transitions.length ; i++) {
+      let state = this.state.currentNode.transitions[i];
+      let element = (
+        <TableRow>
+          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'when', i)} ></TextField></TableRowColumn>
+          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'to', i)} ></TextField></TableRowColumn>
+        </TableRow>
+      );
+      transitions.push(element)
+    }
     
+    let result = (
+    <Table  selectable={false}
+                            multiSelectable={false}>
+      <TableHeader>
+        <TableRow>
+          <TableHeaderColumn>Condición</TableHeaderColumn>
+          <TableHeaderColumn>Nuevo estado</TableHeaderColumn>
+        </TableRow>
+      </TableHeader>
+      <TableBody displayRowCheckbox={false}>{transitions}</TableBody>
+    </Table>)
+
+    return result
   }
 
   render() {
@@ -207,7 +263,7 @@ class App extends Component {
               <br />
               <label>Transiciones</label><br/>
               <hr/>
-
+              {this.renderTransitions()}
           </form>
         </Dialog>
       </div>
