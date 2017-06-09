@@ -79,7 +79,7 @@ const flow = List([
   }
 ])
 
-const addState = (state) => {
+const createState = (state) => {
   flow.push(state)
   refreshRender()
 }
@@ -121,11 +121,14 @@ const refreshRender = () => {
 refreshRender()
 
 class App extends Component {
-  constructor () {
+  constructor() {
     super();
     this.state = {
       showModal: false,
-      currentNode: {}
+      currentNode: {},
+      createNewState: false,
+      x: 0,
+      y: 0
     };
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -135,8 +138,12 @@ class App extends Component {
     muiTheme: React.PropTypes.object
   }
 
-  handleOpenModal () {
-    this.setState({showModal: true});
+  _onMouseMove(e) {
+    this.setState({ x: e.screenX, y: e.screenY });
+  }
+
+  handleOpenModal() {
+    this.setState({ showModal: true });
   }
 
   getChildContext() {
@@ -144,18 +151,20 @@ class App extends Component {
       muiTheme: getMuiTheme()
     }
   }
-  
-  handleCloseModal () {
-    this.setState({showModal: false});
+
+  handleCloseModal() {
+    this.setState({ showModal: false });
   }
 
   render() {
     return (
-      <div>
+      <div onMouseMove={this._onMouseMove.bind(this)}>
+        <h1>Mouse coordinates: {this.state.x} {this.state.y}</h1>
+        <Menu createNew={this.state.createNewState}></Menu>
         <svg height="2100" width="5000">
           <g>{
             data.map((step, k) => (
-              <Node key={k} step={step} open={this.handleOpenModal}/>
+              <Node key={k} step={step} open={this.handleOpenModal} />
             ))}
           </g>
           <g>{
@@ -206,6 +215,20 @@ class Transition extends React.Component {
         <text x={(this.props.t.chart.x1 + this.props.t.chart.x2) / 2} y={((getLine(this.props.t.chart).y1 + getLine(this.props.t.chart).y2) / 2)} fontFamily="Verdana" fontSize="10" fill="black">{this.props.t.when}</text>
         <circle cx={getLine(this.props.t.chart).x2} cy={getLine(this.props.t.chart).y2} r="3" />
       </g>
+    )
+  }
+}
+
+class Menu extends React.Component {
+  createNew
+  render() {
+    return (
+      <div>
+        <button>Nuevo estado</button>
+        <Dialog title="Nuevo estado" modal={true} open={this.props.createNewState}>
+          <button onClick={this.handleCloseModal}>Cerrar</button>
+        </Dialog>
+      </div>
     )
   }
 }
