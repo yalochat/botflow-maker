@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
-import Modal from 'react-modal'
+import Dialog from 'material-ui/Dialog';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const { List } = require('immutable')
 import './App.css'
 
@@ -122,14 +124,25 @@ class App extends Component {
   constructor () {
     super();
     this.state = {
-      showModal: false
+      showModal: false,
+      currentNode: {}
     };
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
   }
 
+  static childContextTypes = {
+    muiTheme: React.PropTypes.object
+  }
+
   handleOpenModal () {
     this.setState({showModal: true});
+  }
+
+  getChildContext() {
+    return {
+      muiTheme: getMuiTheme()
+    }
   }
   
   handleCloseModal () {
@@ -157,9 +170,9 @@ class App extends Component {
             ))}
           </g>
         </svg>
-        <Modal  isOpen={this.state.showModal} contentLabel="Minimal Modal Example" >
-          <button onClick={this.handleCloseModal}>Close Modal</button>
-        </Modal>
+        <Dialog title="Dialog With Actions" modal={true} open={this.state.showModal}>
+          <button onClick={this.handleCloseModal}>Cerrar</button>
+        </Dialog>
       </div>
     );
   }
