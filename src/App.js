@@ -3,6 +3,15 @@ import Dialog from 'material-ui/Dialog';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import {RaisedButton, TextField, Table, TableHeader, TableRow, TableHeaderColumn, TableRowColumn, TableBody } from 'material-ui';
+
+import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import MenuItem from 'material-ui/MenuItem';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import IconMenu from 'material-ui/IconMenu';
+import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
+import NavigationExpandMoreIcon from 'material-ui/svg-icons/navigation/expand-more';
+
 const EditTable = require('material-ui-table-edit')
 
 
@@ -173,6 +182,21 @@ class App extends Component {
     this.setState({ showModal: false });
   }
 
+  updateProperty(type, object, value) {
+    console.log(type, value, object)
+    if (this.state.currentNode) {
+      let state = this.state;
+      state.currentNode[type] = value
+      this.setState(state)
+      console.log(state)
+    }
+    this.updateState()
+  }
+
+  addTransition() {
+
+  }
+
   //TODO: No depender del index para modificar
   updateTransition(type, index, object, value) {
     console.log(object, type, index, value)
@@ -193,9 +217,7 @@ class App extends Component {
     let i = flow.indexOf(flow.find(function(item) {
       return item.name == stateName
     }))
-    console.log(i, this.state.currentNode)
     flow[i] = this.state.currentNode
-    console.log(i, this.state.currentNode)
     refreshRender()
   }
 
@@ -217,6 +239,9 @@ class App extends Component {
     }
     
     let result = (
+      <div>
+      <RaisedButton label="Agregar transición" secondary={true} onClick={this.addTransition}/>
+
     <Table  selectable={false}
                             multiSelectable={false}>
       <TableHeader>
@@ -226,7 +251,9 @@ class App extends Component {
         </TableRow>
       </TableHeader>
       <TableBody displayRowCheckbox={false}>{transitions}</TableBody>
-    </Table>)
+      
+    </Table>
+    </div>)
 
     return result
   }
@@ -234,11 +261,7 @@ class App extends Component {
   render() {
     const actions = [
       <RaisedButton
-        label="Modificar"
         primary={true}
-        onClick={this.handleCloseModal}
-      />,
-      <RaisedButton
         label="Cerrar"
         onClick={this.handleCloseModal}
       />
@@ -272,12 +295,14 @@ class App extends Component {
               <TextField
                 hintText="Nombre del estado"
                 value={this.state.currentNode.name}
+                onChange={this.updateProperty.bind(this, 'name')}
               />
               <br />
               <label>Template</label><br/>
               <TextField
                 hintText="Template"
                 value={this.state.currentNode.template}
+                onChange={this.updateProperty.bind(this, 'template')}
               />
               <br />
               <br />
