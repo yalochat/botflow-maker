@@ -78,6 +78,7 @@ const flow = List([
 
 const addState = (state) => {
   flow.push(state)
+  refreshRender()
 }
 
 const findState = (name) => {
