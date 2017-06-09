@@ -128,12 +128,16 @@ class App extends Component {
     this.state = {
       showModal: false,
       currentNode: {},
+      waitForCreate: false,
+      mouseClass: 'default',
       createNewState: false,
       x: 0,
       y: 0
-    };
-    this.handleOpenModal = this.handleOpenModal.bind(this);
-    this.handleCloseModal = this.handleCloseModal.bind(this);
+    }
+    this.handleOpenModal = this.handleOpenModal.bind(this)
+    this.handleCloseModal = this.handleCloseModal.bind(this)
+    this.prepareToCreateNewState = this.prepareToCreateNewState.bind(this)
+    this.onClick = this.onClick.bind(this)
   }
 
   static childContextTypes = {
@@ -164,6 +168,20 @@ class App extends Component {
 
   }
 
+  onClick() {
+    if(this.state.waitForCreate){
+      this.setState({createNewState: true})
+    }
+  }
+
+  prepareToCreateNewState(state) {
+    console.log(state)
+    this.setState({
+      waitForCreate: state,
+      mouseClass: 'crosshair'
+    })
+  }
+
   render() {
     const actions = [
       <RaisedButton
@@ -179,9 +197,9 @@ class App extends Component {
 
     return (
       <div onMouseMove={this._onMouseMove.bind(this)}>
-        <h1>Mouse coordinates: {this.state.x} {this.state.y}</h1>
-        <Menu createNew={this.state.createNewState}></Menu>
-        <svg height="2100" width="5000">
+        <h1>Mouse coordinates: {this.state.x} {this.state.y} {this.state.waitForCreate}</h1>
+        <Menu prepareToCreateNewState={this.prepareToCreateNewState} x={this.state.x} y={this.state.y}></Menu>
+        <svg onClick={this.onClick} height="2100" width="5000" style={{ cursor: this.state.mouseClass }}>
           <g>{
             data.map((step, k) => (
               <Node key={k} step={step} open={this.handleOpenModal} />
@@ -219,11 +237,13 @@ class App extends Component {
 
           </form>
         </Dialog>
-      </div>
+        <Dialog title="Nuevo estado" modal={true} open={this.state.createNewState}>
+          <button onClick={this.handleCloseModal}>Cerrar</button>
+        </Dialog>
+      </div >
     );
   }
 }
-
 
 class Node extends React.Component {
   render() {
@@ -257,14 +277,14 @@ class Transition extends React.Component {
 }
 
 class Menu extends React.Component {
-  createNew
+  openCreateNewDialog(props) {
+    console.log(props)
+    console.log(`X:${props.x} Y:${props.y}`)
+  }
   render() {
     return (
       <div>
-        <button>Nuevo estado</button>
-        <Dialog title="Nuevo estado" modal={true} open={this.props.createNewState}>
-          <button onClick={this.handleCloseModal}>Cerrar</button>
-        </Dialog>
+        <button onClick={this.props.prepareToCreateNewState.bind(this, true)}>Nuevo estado</button>
       </div>
     )
   }
