@@ -342,6 +342,10 @@ class App extends Component {
 
       let nodes = g.childNodes
 
+      let xy = nodes[0].getAttribute('transform').replace('translate(','').replace(')','').split(',')
+      let x = parseInt(nodes[0].getAttribute('x')) + parseInt(xy[0])
+      let y = parseInt(nodes[0].getAttribute('y')) + parseInt(xy[1])
+
       for(let i = 0; i < nodes.length; i++) {
         let item = nodes[i]
         let xy = item.getAttribute('transform').replace('translate(','').replace(')','').split(',')
@@ -351,6 +355,13 @@ class App extends Component {
         item.setAttribute("y", y)
         item.setAttribute("transform", "translate(0,0)")
       }
+
+      
+      console.log(xy)
+      flow = flow.map(v => {
+        return data.name === v.name? Object.assign(v, {chart: {x: x, y: y}}) : v
+      })
+
       refreshRender()
     }
 
