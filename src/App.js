@@ -276,7 +276,7 @@ class App extends Component {
   onClick() {
     if(this.state.waitForCreate){
       flow.push({
-        name: 'new-state',
+        name: 'new-state' + flow.length + 1,
         chart: {
           x: this.state.x,
           y: this.state.y - 170
