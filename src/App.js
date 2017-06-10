@@ -211,13 +211,26 @@ class App extends Component {
   updateTransition(type, index, object, value) {
     console.log(object, type, index, value)
     if (this.state.currentNode.transitions) {
-      let state = this.state;
-      if (type === 'when') {
-        state.currentNode.transitions[index].when =  value
+      if (index == -1) {
+        let state = this.state;
+        let newTransition = {when: '', to: ''}
+
+        if (type === 'when') {
+          newTransition.when = value
+        } else {
+          newTransition.to = value
+        }
+        state.currentNode.transitions.push(newTransition)
+        this.setState(state)
       } else {
-        state.currentNode.transitions[index].to =  value
+        let state = this.state;
+        if (type === 'when') {
+          state.currentNode.transitions[index].when =  value
+        } else {
+          state.currentNode.transitions[index].to =  value
+        }
+        this.setState(state)
       }
-      this.setState(state)
     }
     this.updateState()
   }
@@ -253,6 +266,16 @@ class App extends Component {
       transitions.push(element)
     }
     
+    for (let i = 0; i < 4 ; i++) {
+      let element = (
+        <TableRow>
+          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'when', -1)} ></TextField></TableRowColumn>
+          <TableRowColumn> <TextField onChange={this.updateTransition.bind(this, 'to', -1)} ></TextField></TableRowColumn>
+        </TableRow>
+      );
+      transitions.push(element)
+    }
+
     let result = (
       <div>
       <RaisedButton label="Agregar transición" secondary={true} onClick={this.addTransition}/>
