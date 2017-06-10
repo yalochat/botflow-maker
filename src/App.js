@@ -165,6 +165,7 @@ class App extends Component {
     this.handleOpenModal = this.handleOpenModal.bind(this)
     this.handleCloseModal = this.handleCloseModal.bind(this)
     this.prepareToCreateNewState = this.prepareToCreateNewState.bind(this)
+    this.copyFlow = this.copyFlow.bind(this)
     this.onClick = this.onClick.bind(this)
   }
 
@@ -204,7 +205,11 @@ class App extends Component {
   }
 
   addTransition() {
+    
+  }
 
+  copyFlow() {
+    console.log(JSON.stringify(flow))  
   }
 
   //TODO: No depender del index para modificar
@@ -402,7 +407,7 @@ class App extends Component {
     return (
       <div onMouseMove={this._onMouseMove.bind(this)}>
         <h1>Mouse coordinates: {this.state.x} {this.state.y} {this.state.waitForCreate}</h1>
-        <Menu prepareToCreateNewState={this.prepareToCreateNewState} x={this.state.x} y={this.state.y}></Menu>
+        <Menu prepareToCreateNewState={this.prepareToCreateNewState} x={this.state.x} y={this.state.y} copyFlow={this.copyFlow}></Menu>
         <svg onClick={this.onClick} height="2100" width="5000" style={{ cursor: this.state.mouseClass }}>
           <g>{
             data.map((step, k) => (
@@ -491,6 +496,7 @@ class Menu extends React.Component {
     return (
       <div>
         <button onClick={this.props.prepareToCreateNewState.bind(this, true)}>Nuevo estado</button>
+        <button onClick={this.props.copyFlow.bind(this)}>Copiar flow</button>
       </div>
     )
   }
