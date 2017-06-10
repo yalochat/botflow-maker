@@ -30,7 +30,6 @@
   max-width: 140px;
   max-height: 30px;
   border: 3px solid aqua !important;
-  border-radius: 10px;
   position: fixed;
   z-index: 0;
 }

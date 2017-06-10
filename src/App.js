@@ -455,8 +455,8 @@ class Node extends React.Component {
   render() {
     return (
       <g id={this.props.step.name} onDoubleClick={this.props.open.bind(this, this.props.step)} onMouseDown={this.props.dragMouseDown.bind(this, this.props.step)} onMouseMove={this.props.dragMove.bind(this, this.props.step)} onMouseUp={this.props.dragEndMove.bind(this, this.props.step)} onMouseOut={this.props.dragEndMove.bind(this)}>
-        <rect x={this.props.step.chart.x} y={this.props.step.chart.y} rx="5" ry="5" width="150" height="50" style={{ fill: 'blue', stroke: 'pink', strokeWidth: 5, opacity: 0.5 }} className="node" />
-        <text x={this.props.step.chart.x + 10} y={this.props.step.chart.y + 20} fontFamily="Verdana" fontSize="15" fill="red">{this.props.step.name}</text>
+        <rect x={this.props.step.chart.x} y={this.props.step.chart.y} width="150" height="50" style={{ fill: 'white', stroke: 'blue', strokeWidth: 1, opacity: 1 }} className="node" />
+        <text x={this.props.step.chart.x + 10} y={this.props.step.chart.y + 20} fontFamily="Verdana" fontSize="15" fill="black">{this.props.step.name}</text>
       </g>
     )
   }
@@ -474,7 +474,7 @@ class Transition extends React.Component {
     }
     return (
       <g>
-        <line x1={getLine(this.props.t.chart).x1} y1={getLine(this.props.t.chart).y1} x2={getLine(this.props.t.chart).x2} y2={getLine(this.props.t.chart).y2} style={{ fill: 'blue', stroke: 'pink', strokeWidth: 5, opacity: 0.5 }} className="transition" />
+        <line x1={getLine(this.props.t.chart).x1} y1={getLine(this.props.t.chart).y1} x2={getLine(this.props.t.chart).x2} y2={getLine(this.props.t.chart).y2} style={{ fill: 'blue', stroke: 'green', strokeWidth: 5, opacity: 0.2 }} className="transition" />
         <text x={(this.props.t.chart.x1 + this.props.t.chart.x2) / 2} y={((getLine(this.props.t.chart).y1 + getLine(this.props.t.chart).y2) / 2)} fontFamily="Verdana" fontSize="10" fill="black">{this.props.t.when}</text>
         <circle cx={getLine(this.props.t.chart).x2} cy={getLine(this.props.t.chart).y2} r="3" />
       </g>
