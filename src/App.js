@@ -221,7 +221,12 @@ class App extends Component {
     let i = flow.indexOf(flow.find(function(item) {
       return item.name == stateName
     }))
-    flow[i] = this.state.currentNode
+    if (i >= 0) {
+      flow[i] = this.state.currentNode
+    } else {
+      flow.push(this.state.currentNode)
+    }
+    
     refreshRender()
   }
 
