@@ -115,6 +115,7 @@ const findState = (name) => {
 let data = [];
 
 const refreshRender = () => {
+  console.log("refreshRender")
   console.log(flow)
   data = flow.map(v => {
 
@@ -143,6 +144,11 @@ const refreshRender = () => {
 }
 
 refreshRender()
+
+let click=false; // flag to indicate when shape has been clicked
+let clickX, clickY; // stores cursor location upon first click
+let moveX=0, moveY=0; // keeps track of overall transformation
+let lastMoveX=0, lastMoveY=0; // stores previous transformation (move)
 
 class App extends Component {
   constructor() {
@@ -294,6 +300,62 @@ class App extends Component {
     })
   }
 
+  dragMouseDown(data, evt){
+    evt.preventDefault() // Needed for Firefox to allow dragging correctly
+    click = true
+    clickX = evt.clientX 
+    clickY = evt.clientY
+
+    let g = document.getElementById(data.name)
+    if(g) {
+      g.style.zIndex = "200"
+    }
+
+  }
+
+  dragMove(data, evt){
+    evt.preventDefault()
+    if(click){
+      moveX = lastMoveX + ( evt.clientX - clickX )
+      moveY = lastMoveY + ( evt.clientY - clickY )
+
+      let g = document.getElementById(data.name)
+
+      if(g) {
+        let nodes = g.childNodes
+        for(let i = 0; i < nodes.length; i++) {
+          nodes[i].setAttribute("transform", "translate(" + moveX + "," + moveY + ")")
+        }
+      }
+      
+    }
+  }
+
+  dragEndMove(data, evt){
+    click = false
+    lastMoveX = 0
+    lastMoveY = 0
+
+    let g = document.getElementById(data.name)
+    if(g) {
+      g.style.zIndex = "0"
+
+      let nodes = g.childNodes
+
+      for(let i = 0; i < nodes.length; i++) {
+        let item = nodes[i]
+        let xy = item.getAttribute('transform').replace('translate(','').replace(')','').split(',')
+        let x = parseInt(item.getAttribute('x')) + parseInt(xy[0])
+        let y = parseInt(item.getAttribute('y')) + parseInt(xy[1])
+        item.setAttribute("x", x)
+        item.setAttribute("y", y)
+        item.setAttribute("transform", "translate(0,0)")
+      }
+      refreshRender()
+    }
+
+  }
+
   render() {
     const actions = [
       <RaisedButton
@@ -310,11 +372,6 @@ class App extends Component {
         <svg onClick={this.onClick} height="2100" width="5000" style={{ cursor: this.state.mouseClass }}>
           <g>{
             data.map((step, k) => (
-              <Node key={k} step={step} open={this.handleOpenModal} />
-            ))}
-          </g>
-          <g>{
-            data.map((step, k) => (
               <g key={k}>
                 {
                   step.transitions.map((t, k1) => (
@@ -322,6 +379,11 @@ class App extends Component {
                   ))
                 }
               </g>
+            ))}
+          </g>
+          <g>{
+            data.map((step, k) => (
+              <Node key={k} step={step} open={this.handleOpenModal} dragMouseDown={this.dragMouseDown} dragMove={this.dragMove} dragEndMove={this.dragEndMove}/>
             ))}
           </g>
         </svg>
@@ -358,9 +420,9 @@ class App extends Component {
 class Node extends React.Component {
   render() {
     return (
-      <g onClick={this.props.open.bind(this, this.props.step)}>
+      <g id={this.props.step.name} onDoubleClick={this.props.open.bind(this, this.props.step)} onMouseDown={this.props.dragMouseDown.bind(this, this.props.step)} onMouseMove={this.props.dragMove.bind(this, this.props.step)} onMouseUp={this.props.dragEndMove.bind(this, this.props.step)} onMouseOut={this.props.dragEndMove.bind(this)}>
         <rect x={this.props.step.chart.x} y={this.props.step.chart.y} rx="5" ry="5" width="150" height="50" style={{ fill: 'blue', stroke: 'pink', strokeWidth: 5, opacity: 0.5 }} className="node" />
-        <text x={this.props.step.chart.x + 10} y={this.props.step.chart.y + 20} fontFamily="Verdana" fontSize="15" fill="white">{this.props.step.name}</text>
+        <text x={this.props.step.chart.x + 10} y={this.props.step.chart.y + 20} fontFamily="Verdana" fontSize="15" fill="red">{this.props.step.name}</text>
       </g>
     )
   }
